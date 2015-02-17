@@ -23,3 +23,18 @@ findEntry firstName lastName = head <<< filter filterEntry
   where
   filterEntry :: Entry -> Boolean
   filterEntry entry = entry.firstName == firstName && entry.lastName == lastName
+
+findByPhone :: String -> PhoneBook -> Maybe Entry
+findByPhone phone = head <<< filter filterEntry
+  where
+      filterEntry :: Entry -> Boolean
+      filterEntry entry = entry.phone == phone
+
+contains :: String -> String -> PhoneBook -> Boolean
+contains firstName lastName = isJust <<< findEntry firstName lastName
+
+removeDuplicates :: PhoneBook -> PhoneBook
+removeDuplicates book = nubBy sameName book
+  where
+      sameName :: Entry -> Entry -> Boolean
+      sameName e1 e2 = e1.firstName == e2.firstName && e1.lastName == e2.lastName
