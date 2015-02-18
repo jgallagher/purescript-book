@@ -11,7 +11,7 @@ showPoint :: Point -> String
 showPoint (Point { x = x, y = y }) = 
   "(" ++ show x ++ ", " ++ show y ++ ")"
 
-data Shape 
+data Shape
   = Circle Point Number
   | Rectangle Point Number Number
   | Line Point Point
@@ -115,3 +115,11 @@ bounds = foldl combine emptyBounds
   where
   combine :: Bounds -> Shape -> Bounds
   combine b shape = shapeBounds shape \/ b
+
+area :: Shape -> Number
+area (Circle _ r) = Math.pi * r * r
+area (Rectangle _ w h) = w * h
+area (Line _ _) = 0
+area (Text _ _) = 0
+
+-- TODO: Clipped (5.16 ex 2)
