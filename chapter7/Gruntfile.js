@@ -8,7 +8,7 @@ module.exports = function(grunt) {
 
     psc: {
       options: {
-        modules: ["Data.AddressBook", "Data.AddressBook.Validation"]
+        modules: ["Data.AddressBook", "Data.AddressBook.Validation", "Chapter7"]
       },
       all: {
       src: ["<%=srcFiles%>"],

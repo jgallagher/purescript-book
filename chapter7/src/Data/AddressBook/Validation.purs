@@ -13,17 +13,9 @@ import Control.Apply
 
 type Errors = [String]
 
-nonEmpty :: String -> String -> V Errors Unit
-nonEmpty field "" = invalid ["Field '" ++ field ++ "' cannot be empty"]
-nonEmpty _     _  = pure unit
-
 arrayNonEmpty :: forall a. String -> [a] -> V Errors Unit
 arrayNonEmpty field [] = invalid ["Field '" ++ field ++ "' must contain at least one value"]
 arrayNonEmpty _     _  = pure unit
-
-lengthIs :: String -> Number -> String -> V Errors Unit
-lengthIs field len value | S.length value /= len = invalid ["Field '" ++ field ++ "' must have length " ++ show len]
-lengthIs _     _   _     = pure unit
 
 phoneNumberRegex :: R.Regex
 phoneNumberRegex = 
@@ -36,15 +28,42 @@ phoneNumberRegex =
     , global:     false 
     }
 
-matches :: String -> R.Regex -> String -> V Errors Unit
-matches _     regex value | R.test regex value = pure unit
+twoLetterRegex :: R.Regex
+twoLetterRegex =
+    R.regex
+    "^[a-zA-Z]{2}$"
+    { unicode:    false
+    , sticky:     false
+    , multiline:  false
+    , ignoreCase: false
+    , global:     false 
+    }
+
+whitespaceRegex :: R.Regex
+whitespaceRegex =
+    R.regex
+    "^\\s*$"
+    { unicode:    false
+    , sticky:     false
+    , multiline:  false
+    , ignoreCase: false
+    , global:     false 
+    }
+
+matches :: String -> R.Regex -> String -> V Errors String
+matches _     regex value | R.test regex value = pure value
 matches field _     _     = invalid ["Field '" ++ field ++ "' did not match the required format"]
+
+nonWhitespace :: String -> String -> V Errors String
+nonWhitespace field value | R.test whitespaceRegex value =
+    invalid ["Field '" ++ field ++ "' cannot be empty"]
+nonWhitespace _ value = pure value
 
 validateAddress :: Address -> V Errors Address 
 validateAddress (Address o) = 
-  address <$> (nonEmpty "Street" o.street *> pure o.street)
-          <*> (nonEmpty "City"   o.city   *> pure o.city)
-          <*> (lengthIs "State" 2 o.state *> pure o.state)
+  address <$> (nonWhitespace "Street" o.street)
+          <*> (nonWhitespace "City"   o.city)
+          <*> (matches "State" twoLetterRegex o.state)
 
 validatePhoneNumber :: PhoneNumber -> V Errors PhoneNumber
 validatePhoneNumber (PhoneNumber o) = 
@@ -53,8 +72,8 @@ validatePhoneNumber (PhoneNumber o) =
 
 validatePerson :: Person -> V Errors Person
 validatePerson (Person o) =
-  person <$> (nonEmpty "First Name" o.firstName *> pure o.firstName)
-         <*> (nonEmpty "Last Name"  o.lastName  *> pure o.lastName)
+  person <$> (nonWhitespace "First Name" o.firstName)
+         <*> (nonWhitespace "Last Name"  o.lastName)
          <*> validateAddress o.address
          <*> (arrayNonEmpty "Phone Numbers" o.phones *> traverse validatePhoneNumber o.phones)
 
