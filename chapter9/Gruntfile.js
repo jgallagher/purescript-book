@@ -25,6 +25,10 @@ module.exports = function(grunt) {
       src: ["src/Random.purs", "<%=srcFiles%>"],
         dest: "dist/Main.js"
       },
+      randomclick: {
+      src: ["src/RandomClick.purs", "<%=srcFiles%>"],
+        dest: "dist/Main.js"
+      },
       refs: {
       src: ["src/Refs.purs", "<%=srcFiles%>"],
         dest: "dist/Main.js"
@@ -42,6 +46,7 @@ module.exports = function(grunt) {
   grunt.registerTask("rectangle", ["psc:rectangle"]);
   grunt.registerTask("shapes",    ["psc:shapes"]);
   grunt.registerTask("random",    ["psc:random"]);
+  grunt.registerTask("randomclick",["psc:randomclick"]);
   grunt.registerTask("refs",      ["psc:refs"]);
   grunt.registerTask("lsystem",   ["psc:lsystem"]);
   grunt.registerTask("default",   ["psc:rectangle", "dotPsci"]);

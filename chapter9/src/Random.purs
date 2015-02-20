@@ -5,6 +5,12 @@ import Control.Monad.Eff.Random
 
 import Graphics.Canvas
 
+strokeFillPath :: forall eff a. Context2D -> Eff (canvas :: Canvas | eff) a ->
+                  Eff (canvas :: Canvas | eff) a
+strokeFillPath ctx path = do
+    fillPath ctx path
+    strokePath ctx path
+
 main = do
   canvas <- getCanvasElementById "canvas"
   ctx <- getContext2D canvas
@@ -24,8 +30,9 @@ main = do
          , start : 0
          , end   : Math.pi * 2 
          }
-    
-    fillPath ctx path
-    strokePath ctx path
+
+    strokeFillPath ctx path
+    --fillPath ctx path
+    --strokePath ctx path
 
     return unit
