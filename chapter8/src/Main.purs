@@ -7,7 +7,12 @@ import Debug.Trace
 
 import Data.AddressBook.UI
 
-main :: forall eff. Eff (trace :: Trace, dom :: DOM | eff) Unit
+import Chapter8
+import Control.Monad.Eff.Random
+
+main :: forall eff. Eff (random :: Random, trace :: Trace, dom :: DOM | eff) Unit
 main = do
-  trace "Attaching event handlers"
-  setupEventHandlers 
+    --pi <- simulatePi 10000
+    --print pi
+    trace "Attaching event handlers"
+    setupEventHandlers 

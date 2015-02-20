@@ -29,22 +29,38 @@ valueOf sel = do
 
 displayValidationErrors :: forall eff. [String] -> Eff (dom :: DOM | eff) Unit
 displayValidationErrors errs = do
-  alert <- createElement "div"
-    >>= addClass "alert"
-    >>= addClass "alert-danger"
+-- One div per error:
+    Just validationErrors <- querySelector "#validationErrors"
 
-  ul <- createElement "ul"
-  ul `appendChild` alert
+    foreachE errs $ \err -> do
+        alert <- do
+            d <- createElement "div"
+            addClass "alert"        d
+            addClass "alert-danger" d
+            setText  err            d
+            return d
 
-  foreachE errs $ \err -> do
-    li <- createElement "li" >>= setText err
-    li `appendChild` ul
+        alert `appendChild` validationErrors
+        return unit
+
     return unit
-
-  Just validationErrors <- querySelector "#validationErrors"
-  alert `appendChild` validationErrors
-
-  return unit
+-- Original Impl:
+--  alert <- createElement "div"
+--    >>= addClass "alert"
+--    >>= addClass "alert-danger"
+--
+--  ul <- createElement "ul"
+--  ul `appendChild` alert
+--
+--  foreachE errs $ \err -> do
+--    li <- createElement "li" >>= setText err
+--    li `appendChild` ul
+--    return unit
+--
+--  Just validationErrors <- querySelector "#validationErrors"
+--  alert `appendChild` validationErrors
+--
+--  return unit
 
 validateControls :: forall eff. Eff (trace :: Trace, dom :: DOM | eff) (Either [String] Person)
 validateControls = do
@@ -57,6 +73,7 @@ validateControls = do
                            <*> valueOf "#inputState")
               <*> sequence [ phoneNumber HomePhone <$> valueOf "#inputHomePhone"
                            , phoneNumber CellPhone <$> valueOf "#inputCellPhone"
+                           , phoneNumber WorkPhone <$> valueOf "#inputWorkPhone"
                            ]
 
   return $ validatePerson' p

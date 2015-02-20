@@ -17,6 +17,8 @@
   "dependencies": {
     "purescript-jquery"                   : "*",
     "purescript-validation"               : "*",
-    "purescript-strings"                  : "*"
+    "purescript-strings"                  : "*",
+    "purescript-random"                  : "*",
+    "purescript-exceptions"               : "*"
   }
 }
