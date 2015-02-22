@@ -61,6 +61,24 @@ readFileCont path = ContT $ readFile path
 writeFileCont :: forall eff. FilePath -> String -> C eff (Either ErrorCode Unit)
 writeFileCont path text = ContT $ writeFile path text
 
+copyFileCont :: forall eff. FilePath -> FilePath -> C eff (Either ErrorCode Unit)
+copyFileCont src dest = do
+    e <- readFileCont src
+    case e of
+         Left err -> return $ Left err
+         Right content -> writeFileCont dest content
+
+concatFilesCont :: forall eff. [FilePath] -> FilePath -> C eff (Either ErrorCode Unit)
+concatFilesCont = concatFilesCont' ""
+  where
+      concatFilesCont' :: forall eff. String -> [FilePath] -> FilePath -> C eff (Either ErrorCode Unit)
+      concatFilesCont' content [] dest = writeFileCont dest content
+      concatFilesCont' content (src : srcs) dest = do
+          e <- readFileCont src
+          case e of
+               Left err -> return $ Left err
+               Right newContent -> concatFilesCont' (content ++ newContent) srcs dest
+
 type EC eff = ErrorT ErrorCode (C eff)
 
 readFileContErr :: forall eff. FilePath -> EC eff String
@@ -73,3 +91,12 @@ copyFileContErr :: forall eff. FilePath -> FilePath -> EC eff Unit
 copyFileContErr src dest = do
   content <- readFileContErr src
   writeFileContErr dest content
+
+concatFilesContErr :: forall eff. [FilePath] -> FilePath -> EC eff Unit
+concatFilesContErr = concatFilesContErr' ""
+  where
+      concatFilesContErr' :: forall eff. String -> [FilePath] -> FilePath -> EC eff Unit
+      concatFilesContErr' content [] dest = writeFileContErr dest content
+      concatFilesContErr' content (src : srcs) dest = do
+          newContent <- readFileContErr src
+          concatFilesContErr' (content ++ newContent) srcs dest
